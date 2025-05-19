@@ -5,9 +5,13 @@ const crypto = require("crypto");
 const dotenv = require("dotenv");
 dotenv.config();
 
+/**
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+
 const join = (req, res) => {
   const { email, password } = req.body;
-
   const salt = crypto.randomBytes(10).toString("base64");
   const hashPassword = crypto
     .pbkdf2Sync(password, salt, 10000, 10, "sha512")
@@ -27,7 +31,6 @@ const join = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-
   let sql = `SELECT * FROM users WHERE email = ?`;
 
   conn.query(sql, email, (err, results) => {
