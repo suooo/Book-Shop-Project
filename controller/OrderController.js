@@ -1,4 +1,4 @@
-// const conn = require("../mariadb");
+const conn = require("../mariadb");
 const mariadb = require("mysql2/promise");
 const { StatusCodes } = require("http-status-codes");
 
@@ -54,11 +54,36 @@ const deleteCartItems = async (conn, items) => {
 };
 
 const getOrderList = (req, res) => {
-  res.json("주문 목록 조회");
+  let sql = `SELECT orders.id, created_at, address, receiver, contact, book_title, total_quantity, total_price
+      FROM orders LEFT JOIN delivery
+      ON orders.delivery_id = delivery.id;`;
+
+  conn.query(sql, (err, results) => {
+    if (err) {
+      console.log(err);
+      return res.status(StatusCodes.BAD_REQUEST).end();
+    }
+
+    return res.status(StatusCodes.OK).json(results);
+  });
 };
 
 const getOrderDetail = (req, res) => {
-  res.json("상세정보 조회");
+  const { id } = req.params;
+
+  let sql = `SELECT book_id, title, author, price, quantity
+      FROM orderedBook LEFT JOIN books
+      ON orderedBook.book_id = books.id
+      WHERE order_id = ?;`;
+
+  conn.query(sql, id, (err, results) => {
+    if (err) {
+      console.log(err);
+      return res.status(StatusCodes.BAD_REQUEST).end();
+    }
+
+    return res.status(StatusCodes.OK).json(results);
+  });
 };
 
 module.exports = {
