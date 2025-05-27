@@ -37,12 +37,18 @@ const getCartItem = (req, res) => {
       message: "잘못된 토큰입니다.",
     });
   } else {
+    // 장바구니 전체 조회
     let sql = `SELECT cartItems.id, book_id, title, summary, quantity, price 
     FROM cartItems LEFT JOIN books 
     ON cartItems.book_id = books.id
-    WHERE user_id = ?
-    AND cartItems.id IN (?);`;
-    let values = [authorization.id, [...selected]];
+    WHERE user_id = ?`;
+    let values = [authorization.id];
+
+    if (selected) {
+      // 주문서 작성 시 '선택한' 장바구니 목록 조회
+      sql += ` AND cartItems.id IN (?)`;
+      values.push(selected);
+    }
 
     conn.query(sql, values, (err, results) => {
       if (err) {
