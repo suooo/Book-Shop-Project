@@ -1,12 +1,12 @@
 const conn = require("../mariadb");
 const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
+const ensureAuthorization = require("../auth");
 const dotenv = require("dotenv");
 dotenv.config();
 
 const addLike = (req, res) => {
   const { book_id } = req.params;
-
   let authorization = ensureAuthorization(req, res);
 
   if (authorization instanceof jwt.TokenExpiredError) {
@@ -59,19 +59,5 @@ const removeLike = (req, res) => {
     });
   }
 };
-
-function ensureAuthorization(req, res) {
-  try {
-    let receivedJwt = req.headers["authorization"];
-    let decodedJwt = jwt.verify(receivedJwt, process.env.PRIVATE_KEY);
-
-    return decodedJwt;
-  } catch (err) {
-    console.log(err.name);
-    console.log(err.message);
-
-    return err;
-  }
-}
 
 module.exports = { addLike, removeLike };

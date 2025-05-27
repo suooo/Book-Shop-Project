@@ -1,5 +1,6 @@
 const conn = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
+const ensureAuthorization = require("../auth");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 dotenv.config();
@@ -56,11 +57,11 @@ const getCartItem = (req, res) => {
 
 // 장바구니 아이템 삭제
 const removeCartItem = (req, res) => {
-  const { cartItemId } = req.params;
+  const { cart_item_id } = req.params;
 
   let sql = `DELETE FROM cartItems WHERE id = ?;`;
 
-  conn.query(sql, [cartItemId], (err, results) => {
+  conn.query(sql, cart_item_id, (err, results) => {
     if (err) {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
@@ -69,19 +70,5 @@ const removeCartItem = (req, res) => {
     return res.status(StatusCodes.OK).json(results);
   });
 };
-
-function ensureAuthorization(req, res) {
-  try {
-    let receivedJwt = req.headers["authorization"];
-    let decodedJwt = jwt.verify(receivedJwt, process.env.PRIVATE_KEY);
-
-    return decodedJwt;
-  } catch (err) {
-    console.log(err.name);
-    console.log(err.message);
-
-    return err;
-  }
-}
 
 module.exports = { addToCart, getCartItem, removeCartItem };
