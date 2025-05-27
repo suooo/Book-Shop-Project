@@ -2,8 +2,6 @@ const conn = require("../mariadb");
 const { StatusCodes } = require("http-status-codes");
 const ensureAuthorization = require("../auth");
 const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
-dotenv.config();
 
 // 장바구니 담기
 const addToCart = (req, res) => {
